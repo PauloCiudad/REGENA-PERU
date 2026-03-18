@@ -52,6 +52,10 @@ CREATE TABLE cotizacion_detalle (
     MARGEN                    NUMBER(6) NOT NULL,
     COMISION                  NUMBER(6) NOT NULL,
     IMPORTE_COMISION          NUMBER(15,2) NOT NULL,
+    fecha_creacion        DATE DEFAULT SYSDATE NOT NULL,
+    usuario_creacion      VARCHAR2(100) DEFAULT USER NOT NULL,
+    fecha_modificacion    DATE,
+    usuario_modificacion  VARCHAR2(100),
 
     CONSTRAINT FK_COTCAB_COTDET FOREIGN KEY (ITEM_COTIZACION)
         REFERENCES cotizacion_cabecera(id_cotizacion)
@@ -63,3 +67,22 @@ CREATE TABLE cotizacion_detalle (
 );
 
 //CREAR TABLA DE COSTOS
+
+
+CREATE OR REPLACE TRIGGER COTIZACION_CABECERA_BU
+BEFORE UPDATE ON COTIZACION_CABECERA
+REFERENCING OLD AS OLD NEW AS NEW
+FOR EACH ROW
+BEGIN
+:NEW.usuario_modificacion := nvl(v('APP_USER'),USER);
+:NEW.fecha_modificacion := SYSDATE;
+END;
+
+CREATE OR REPLACE TRIGGER COTIZACION_DETALLE_BU
+BEFORE UPDATE ON COTIZACION_DETALLE
+REFERENCING OLD AS OLD NEW AS NEW
+FOR EACH ROW
+BEGIN
+:NEW.usuario_modificacion := nvl(v('APP_USER'),USER);
+:NEW.fecha_modificacion := SYSDATE;
+END;
